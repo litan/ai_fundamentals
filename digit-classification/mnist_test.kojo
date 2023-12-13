@@ -13,10 +13,10 @@ class MnistModel(modelFile: String) {
     val w2 = params(2); val b2 = params(3)
     val w3 = params(4); val b3 = params(5)
 
-    def load(n: Int): Seq[NDArray] = {
+    def load(n: Int): Array[NDArray] = {
         import java.io._
         println(s"Loading model from file - $modelFile")
-        Using.Manager { use =>
+        managed { use =>
             val dis = use(new DataInputStream(
                 new BufferedInputStream(new FileInputStream(modelFile))
             ))
@@ -28,7 +28,7 @@ class MnistModel(modelFile: String) {
                 params.append(p)
             }
             params.toArray
-        }.get
+        }
     }
 
     def modelFunction(x: NDArray): NDArray = {
