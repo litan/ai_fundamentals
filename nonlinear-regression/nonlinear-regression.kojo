@@ -4,12 +4,19 @@
 cleari()
 clearOutput()
 
+val seed = 42
+initRandomGenerator(seed)
+Engine.getInstance.setRandomSeed(seed)
+
 val a = 2
 val b = 3
-val c = 1
+val c = 10
+val den = 5000
+
+def f(x: Double) = (a * x * x * x * x + b * x + c) / den
 
 val xData0 = Array.tabulate(20)(e => (e + 1).toDouble)
-val yData0 = xData0 map (x => a * x * x + b * x + c + random(-5, 5))
+val yData0 = xData0 map (x => f(x) + random(-3, 3))
 
 val xNormalizer = new StandardScaler()
 val yNormalizer = new StandardScaler()

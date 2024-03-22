@@ -27,7 +27,6 @@ val nepochs = 500
 
 ndScoped { use =>
     val model = use(new Model)
-    //    updateGraph(model, 0)
     model.train(xDataf, yDataf)
     updateGraph(model, nepochs)
 }
@@ -62,7 +61,7 @@ class Model extends AutoCloseable {
         ndScoped { _ =>
             val x = nm.create(xValues).reshape(Shape(-1, 1))
             val y = nm.create(yValues).reshape(Shape(-1, 1))
-            for (epoch <- 1 to 1000) {
+            for (epoch <- 1 to nepochs) {
                 ndScoped { _ =>
                     val gc = gradientCollector
                     val yPred = modelFunction(x)
