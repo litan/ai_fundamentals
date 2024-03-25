@@ -14,27 +14,22 @@ val c = 1
 
 def f(x: Double) = m * x + c
 
-val xData = Array.tabulate(11)(n => n.toDouble)
+val xData = Array(0.0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 val yData = xData.map(x => f(x) + randomDouble(-3, 3))
 
 val chart = scatterChart("Regression Data", "X", "Y", xData, yData)
 chart.getStyler.setLegendVisible(true)
 drawChart(chart)
 
-val nepochs = 10
-val lr = 0.99f
+val nepochs = 50
+val lr = 0.1f
 
-ndScoped { use =>
-    val model = use(new NeuralNet())
-    model.train(xData, yData, nepochs, lr)
-    updateGraph(model, nepochs)
-}
+val model = new NeuralNet()
+model.train(xData, yData, nepochs, lr)
 
-def updateGraph(model: NeuralNet, n: Int) {
-    // take a look at model predictions at the training points
-    // and also between the training points
-    val xs = xData.flatMap(x => Array(x, x + 0.5))
-    val yPreds = model.predict(xs)
-    addLineToChart(chart, Some(s"epoch-$n"), xs.map(_.toDouble), yPreds.map(_.toDouble))
-    updateChart(chart)
-}
+val yPreds = model.predict(xData)
+addLineToChart(chart, Some(s"epoch-$nepochs"), xData, yPreds)
+updateChart(chart)
+
+model.close()
+

@@ -37,14 +37,16 @@ val lr = 0.003f
 
 ndScoped { use =>
     val model = use(new NeuralNet(4))
-    model.train(xData, yData, nepochs, lr)
+    model.train(xData, yData, nepochs / 2, lr)
+    updateGraph(model, nepochs / 2)
+    model.train(xData, yData, nepochs / 2, lr)
     updateGraph(model, nepochs)
 }
 
 def updateGraph(model: NeuralNet, n: Int) {
     // take a look at model predictions at the training points
     // and also between the training points
-    val xs = xData.flatMap(x => Array(x, x + 0.1))
+    val xs = xData.flatMap(x => Array(x, x + 0.5))
     val yPreds = model.predict(xs)
     addLineToChart(chart, Some(s"epoch-$n"), xs.map(_.toDouble), yPreds.map(_.toDouble))
     updateChart(chart)

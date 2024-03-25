@@ -54,30 +54,31 @@ class NeuralNet(numHiddenUnits: Int*) extends AutoCloseable {
     def train(
         xValuesRaw: Array[Double], yValuesRaw: Array[Double],
         epochs: Int, lr: Float = 0.01f): Unit = {
-        val xValues = xNormalizer.fitTransform(xValuesRaw).map(_.toFloat)
-        val yValues = yNormalizer.fitTransform(yValuesRaw).map(_.toFloat)
-        val x = nm.create(xValues).reshape(Shape(-1, 1))
-        val y = nm.create(yValues).reshape(Shape(-1, 1))
-        for (epoch <- 1 to epochs) {
-            ndScoped { use =>
-                val gc = use(gradientCollector)
-                val yPred = modelFunction(x)
-                val loss = y.sub(yPred).square().mean()
-                if (epoch % 50 == 0) {
-                    println(s"Loss -- ${loss.getFloat()}")
+        ndScoped { use =>
+            val xValues = xNormalizer.fitTransform(xValuesRaw).map(_.toFloat)
+            val yValues = yNormalizer.fitTransform(yValuesRaw).map(_.toFloat)
+            val x = nm.create(xValues).reshape(Shape(-1, 1))
+            val y = nm.create(yValues).reshape(Shape(-1, 1))
+            for (epoch <- 1 to epochs) {
+                ndScoped { use =>
+                    val gc = use(gradientCollector)
+                    val yPred = modelFunction(x)
+                    val loss = y.sub(yPred).square().mean()
+                    if (epoch % 50 == 0) {
+                        println(s"Loss -- ${loss.getFloat()}")
+                    }
+                    gc.backward(loss)
                 }
-                gc.backward(loss)
-            }
 
-            ndScoped { _ =>
-                params.foreach { p =>
-                    p.subi(p.getGradient.mul(lr))
-                    p.zeroGradients()
+                ndScoped { _ =>
+                    params.foreach { p =>
+                        p.subi(p.getGradient.mul(lr))
+                        p.zeroGradients()
+                    }
                 }
             }
+            println("Training Done")
         }
-        x.close(); y.close()
-        println("Training Done")
     }
 
     def predict(xValuesRaw: Array[Double]): Array[Double] = {

@@ -37,11 +37,10 @@ drawChart(chart)
 val nepochs = 500
 val lr = 0.01f
 
-ndScoped { use =>
-    val model = use(new NeuralNet(25, 25))
-    model.train(xData, yData, nepochs, lr)
-    updateGraph(model, nepochs)
-}
+val model = new NeuralNet(25, 25)
+model.train(xData, yData, nepochs, lr)
+updateGraph(model, nepochs)
+model.close()
 
 def updateGraph(model: NeuralNet, n: Int) {
     // take a look at model predictions at the training points
