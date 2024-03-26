@@ -27,7 +27,7 @@ def f(x: Double) = {
     table(x.toInt)
 }
 
-val xData = Array.tabulate(11)(n => n.toDouble)
+val xData = range(0, 11)
 val yData = xData.map(x => f(x) + randomDouble(-1, 1))
 
 val chart = scatterChart("Regression Data", "X", "Y", xData, yData)

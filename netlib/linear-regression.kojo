@@ -14,7 +14,7 @@ val c = 1
 
 def f(x: Double) = m * x + c
 
-val xData = Array(0.0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+val xData = range(0, 11)
 val yData = xData.map(x => f(x) + randomDouble(-3, 3))
 
 val chart = scatterChart("Regression Data", "X", "Y", xData, yData)

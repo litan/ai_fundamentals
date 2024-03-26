@@ -16,7 +16,7 @@ val den = 5000
 
 def f(x: Double) = (a * x * x * x * x + b * x + c) / den
 
-val xData = Array.tabulate(20)(e => (e + 1).toDouble)
+val xData = range(0, 21)
 val yData = xData map (x => f(x) + random(-3, 3))
 
 val chart = scatterChart("Regression Data", "X", "Y", xData, yData)

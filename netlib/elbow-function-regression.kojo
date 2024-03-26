@@ -16,13 +16,13 @@ val c2 = -60
 val m3 = -1
 val c3 = 30
 
-val xData1 = Array.tabulate(6)(e => (e + 1).toDouble)
+val xData1 = range(0, 7)
 val yData1 = xData1.map(x => m1 * x + c1 + randomDouble(-1, 1))
 
-val xData2 = Array.tabulate(6)(e => (e + 7).toDouble)
+val xData2 = range(7, 13)
 val yData2 = xData2.map(x => m2 * x + c2 + randomDouble(-1, 1))
 
-val xData3 = Array.tabulate(6)(e => (e + 13).toDouble)
+val xData3 = range(13, 19)
 val yData3 = xData3.map(x => m3 * x + c3 + randomDouble(-1, 1))
 
 val xData = xData1 ++ xData2 ++ xData3
@@ -35,7 +35,7 @@ drawChart(chart)
 val nepochs = 25000
 val lr = 0.003f
 
-val model = new NeuralNet(4)
+val model = new NeuralNet(6)
 model.train(xData, yData, nepochs / 2, lr)
 updateGraph(model, nepochs / 2)
 model.train(xData, yData, nepochs / 2, lr)
