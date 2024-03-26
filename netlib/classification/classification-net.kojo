@@ -1,60 +1,30 @@
 // #include /nn.kojo
-// #include /plot.kojo
+import ai.djl.training.dataset.RandomAccessDataset
 
-import ai.djl.basicdataset.cv.classification.Mnist
-
-val seed = 40
-initRandomGenerator(seed)
-Engine.getInstance.setRandomSeed(seed)
-
-cleari()
-clearOutput()
-
-ndScoped { use =>
-    val model = use(new MnistModel())
-    timeit("Training") {
-        model.train()
-    }
-    model.test()
-    model.save()
+def range(start: Int, end: Int, step: Double = 1.0): Array[Double] = {
+    rangeTill(start, end, step).map(_.toDouble).toArray
 }
 
-def dataset(usage: Dataset.Usage, mgr: NDManager) = {
-    val mnist =
-        Mnist.builder()
-            .optUsage(usage)
-            .setSampling(64, true)
-            .optManager(mgr)
-            .build()
+class ClassificationNet(nDims: Int*) extends AutoCloseable {
+    require(nDims.length >= 3, "ClassificationNet problem – you need at least one input, one hidden, and one output layer")
+    require(nDims.last > 1, "ClassificationNet problem – you need at least two output classes")
+    val nm = NDManager.newBaseManager()
 
-    mnist.prepare(new ProgressBar())
-    mnist
-}
+    val nDimsList = nDims.toList
+    var inputDim = nDimsList.head
 
-class MnistModel extends AutoCloseable {
-    def learningRate(e: Int) = e match {
-        case n if n <= 10 => 0.1f
-        case n if n <= 15 => 0.03f
-        case _            => 0.01f
+    val params = ArrayBuffer.empty[NDArray]
+    val wInitMean = 0f
+    val wInitStd = 0.1f
+    val bInitMean = 0f
+    val bInitStd = 0.01f
+
+    for (pairList <- nDimsList.sliding(2)) {
+        val n1 = pairList(0); val n2 = pairList(1)
+        val wn = nm.randomNormal(wInitMean, wInitStd, Shape(n1, n2), DataType.FLOAT32)
+        val bn = nm.randomNormal(bInitMean, bInitStd, Shape(n2), DataType.FLOAT32)
+        params.append(wn); params.append(bn)
     }
-
-    val nm = ndMaker
-    val trainingSet = dataset(Dataset.Usage.TRAIN, nm)
-    val validateSet = dataset(Dataset.Usage.TEST, nm)
-
-    val hidden1 = 38
-    val hidden2 = 12
-
-    val w1 = nm.randomNormal(0, 0.1f, Shape(784, hidden1), DataType.FLOAT32)
-    val b1 = nm.zeros(Shape(hidden1))
-
-    val w2 = nm.randomNormal(0, 0.1f, Shape(hidden1, hidden2), DataType.FLOAT32)
-    val b2 = nm.zeros(Shape(hidden2))
-
-    val w3 = nm.randomNormal(0, 0.1f, Shape(hidden2, 10), DataType.FLOAT32)
-    val b3 = nm.zeros(Shape(10))
-
-    val params = new NDList(w1, b1, w2, b2, w3, b3).asScala
 
     val softmax = new SoftmaxCrossEntropyLoss()
 
@@ -62,28 +32,19 @@ class MnistModel extends AutoCloseable {
         p.setRequiresGradient(true)
     }
 
-    params.foreach { p =>
-        println(p.size)
-    }
-
     def modelFunction(x: NDArray): NDArray = {
-        val l1 = x.matMul(w1).add(b1)
-        val l1a = Activation.relu(l1)
-
-        val l2 = l1a.matMul(w2).add(b2)
-        val l2a = Activation.relu(l2)
-
-        l2a.matMul(w3).add(b3)
+        var lna = x
+        for (n <- 0 until (params.length - 2) by 2) {
+            lna = lna.matMul(params(n)).add(params(n + 1))
+            lna = Activation.relu(lna)
+        }
+        lna.matMul(params(params.length - 2)).add(params.last)
     }
 
-    val numEpochs = 20
-
-    def train(): Unit = {
-        println("Training Started...")
-        val lossChart = new LiveChart(
-            "Loss Plot", "epoch", "loss", 0, numEpochs, 0, 1
-        )
-        for (epoch <- 1 to numEpochs) {
+    def train(
+        trainingSet: RandomAccessDataset, valSet: RandomAccessDataset,
+        epochs: Int, learningRate: Int => Float): Unit = {
+        for (epoch <- 1 to epochs) {
             var eloss = 0f
             trainingSet.getData(nm).asScala.foreach { batch0 =>
                 ndScoped { use =>
@@ -104,16 +65,16 @@ class MnistModel extends AutoCloseable {
                 }
             }
             println(s"[$epoch] Loss -- $eloss")
-            lossChart.update(epoch, eloss)
+            //            lossChart.update(epoch, eloss)
         }
         println("Training Done")
     }
 
-    def test() {
-        println("Determining accuracy on the test set")
+    def showAccuracy(valSet: RandomAccessDataset) {
+        println("Determining accuracy on the given test set")
         var total = 0l
         var totalGood = 0l
-        validateSet.getData(nm).asScala.foreach { batch0 =>
+        valSet.getData(nm).asScala.foreach { batch0 =>
             ndScoped { use =>
                 val batch = use(batch0)
                 val x = batch.getData.head.reshape(Shape(-1, 784))
