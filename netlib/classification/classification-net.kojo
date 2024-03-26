@@ -16,13 +16,11 @@ class ClassificationNet(nDims: Int*) extends AutoCloseable {
     val params = ArrayBuffer.empty[NDArray]
     val wInitMean = 0f
     val wInitStd = 0.1f
-    val bInitMean = 0f
-    val bInitStd = 0.01f
 
     for (pairList <- nDimsList.sliding(2)) {
         val n1 = pairList(0); val n2 = pairList(1)
         val wn = nm.randomNormal(wInitMean, wInitStd, Shape(n1, n2), DataType.FLOAT32)
-        val bn = nm.randomNormal(bInitMean, bInitStd, Shape(n2), DataType.FLOAT32)
+        val bn = nm.zeros(Shape(n2))
         params.append(wn); params.append(bn)
     }
 

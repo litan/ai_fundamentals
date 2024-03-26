@@ -4,7 +4,7 @@
 
 import ai.djl.basicdataset.cv.classification.Mnist
 
-val seed = 41
+val seed = 40
 initRandomGenerator(seed)
 Engine.getInstance.setRandomSeed(seed)
 
