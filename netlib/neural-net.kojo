@@ -33,8 +33,6 @@ class NeuralNet(numHiddenUnits: Int*) extends AutoCloseable {
     val wf = nm.randomNormal(wInitMean, wInitStd, Shape(hidden, 1), DataType.FLOAT32)
     val bf = nm.randomNormal(bInitMean, bInitStd, Shape(1), DataType.FLOAT32)
     params.append(wf); params.append(bf)
-    params.foreach { p => println(p.getShape) }
-    println(params.size)
 
     //    val params = new NDList(w1, b1, w2, b2).asScala
 
@@ -64,8 +62,8 @@ class NeuralNet(numHiddenUnits: Int*) extends AutoCloseable {
                     val gc = use(gradientCollector)
                     val yPred = modelFunction(x)
                     val loss = y.sub(yPred).square().mean()
-                    if (epoch % 50 == 0) {
-                        println(s"Loss -- ${loss.getFloat()}")
+                    if (epoch % 5 == 0) {
+                        println(s"[Epoch $epoch] Loss -- ${loss.getFloat()}")
                     }
                     gc.backward(loss)
                 }
