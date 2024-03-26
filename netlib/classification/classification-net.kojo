@@ -62,8 +62,7 @@ class ClassificationNet(nDims: Int*) extends AutoCloseable {
                     }
                 }
             }
-            println(s"[$epoch] Loss -- $eloss")
-            //            lossChart.update(epoch, eloss)
+            println(s"[Epoch $epoch] Loss – $eloss")
         }
         println("Training Done")
     }

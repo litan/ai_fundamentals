@@ -67,7 +67,7 @@ class NeuralNet(numHiddenUnits: Int*) extends AutoCloseable {
                     val yPred = modelFunction(x)
                     val loss = y.sub(yPred).square().mean()
                     if (epoch % 5 == 0) {
-                        println(s"[Epoch $epoch] Loss -- ${loss.getFloat()}")
+                        println(s"[Epoch $epoch] Loss – ${loss.getFloat()}")
                     }
                     gc.backward(loss)
                 }
