@@ -84,7 +84,7 @@ class NeuralNet(numHiddenUnits: Int*) extends AutoCloseable {
     }
 
     def predict(xValuesRaw: Array[Double]): Array[Double] = {
-        val xValues = xNormalizer.fitTransform(xValuesRaw).map(_.toFloat)
+        val xValues = xNormalizer.transform(xValuesRaw).map(_.toFloat)
         ndScoped { _ =>
             val x = nm.create(xValues).reshape(Shape(-1, 1))
             val y = modelFunction(x)

@@ -37,7 +37,7 @@ drawChart(chart)
 val nepochs = 500
 val lr = 0.01f
 
-val model = new NeuralNet(25, 25)
+val model = new NeuralNet(25, 15)
 model.train(xData, yData, nepochs, lr)
 updateGraph(model, nepochs)
 model.close()
