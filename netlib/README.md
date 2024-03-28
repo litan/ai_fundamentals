@@ -9,7 +9,7 @@ The `regression` directory contains the following:
 - Many examples that use the above neural network.
 
 The `classification` directory contains the following:
-- An implementation of a multi-layer neural network (in `neural-net.kojo`) for classification, which can be used in a very simple manner.
+- An implementation of a multi-layer neural network (in `classification-net.kojo`) for classification, which can be used in a very simple manner.
   - The number of layers and the number of units in these layers can be specified when the neural network is constructed.
   - The hidden layers use the relu activation function.
   - The output layer uses the softmax activation function.
