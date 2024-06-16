@@ -33,9 +33,21 @@ ndScoped { use =>
     val model = use(new ClassificationNet(784, 38, 12, 10))
     val trainingSet = dataset(Dataset.Usage.TRAIN, model.nm)
     val valSet = dataset(Dataset.Usage.TEST, model.nm)
+    val numEpochs = 20
+    val lossChart = new LiveChart(
+        "Loss Plot", "epoch", "loss", 0, numEpochs, 0, 1
+    )
+
+    val tl = new TrainingListener {
+        def onEpochDone(epoch: Int, loss: Double) {
+            lossChart.update(epoch, loss)
+        }
+    }
+
+    model.setTrainingListener(tl)
 
     timeit("Training") {
-        model.train(trainingSet, valSet, 20, learningRate)
+        model.train(trainingSet, valSet, numEpochs, learningRate)
     }
     model.showAccuracy(valSet)
     model.save()

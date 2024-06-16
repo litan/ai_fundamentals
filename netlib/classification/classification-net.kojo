@@ -5,6 +5,10 @@ def range(start: Int, end: Int, step: Double = 1.0): Array[Double] = {
     rangeTill(start, end, step).map(_.toDouble).toArray
 }
 
+trait TrainingListener {
+    def onEpochDone(epoch: Int, loss: Double)
+}
+
 class ClassificationNet(nDims: Int*) extends AutoCloseable {
     require(nDims.length >= 3, "ClassificationNet problem – you need at least one input, one hidden, and one output layer")
     require(nDims.last > 1, "ClassificationNet problem – you need at least two output classes")
@@ -16,6 +20,11 @@ class ClassificationNet(nDims: Int*) extends AutoCloseable {
     val params = ArrayBuffer.empty[NDArray]
     val wInitMean = 0f
     val wInitStd = 0.1f
+
+    var otListener: Option[TrainingListener] = None
+    def setTrainingListener(tl: TrainingListener) {
+        otListener = Some(tl)
+    }
 
     for (pairList <- nDimsList.sliding(2)) {
         val n1 = pairList(0); val n2 = pairList(1)
@@ -63,6 +72,7 @@ class ClassificationNet(nDims: Int*) extends AutoCloseable {
                 }
             }
             println(s"[Epoch $epoch] Loss – $eloss")
+            otListener.foreach(_.onEpochDone(epoch, eloss))
         }
         println("Training Done")
     }
