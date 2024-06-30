@@ -47,6 +47,6 @@ def updateGraph(model: NeuralNet, n: Int) {
     // and also between the training points
     val xs = xData.flatMap(x => Array(x, x + 0.5))
     val yPreds = model.predict(xs)
-    addLineToChart(chart, Some(s"epoch-$n"), xs.map(_.toDouble), yPreds.map(_.toDouble))
+    addLineToChart(chart, Some(s"epoch-$n"), xs, yPreds)
     updateChart(chart)
 }
