@@ -159,24 +159,32 @@ class NeuralNet(numHiddenUnits: Int*) extends AutoCloseable {
     }
 
     def linesPic(lineData: ArrayBuffer[ArrayBuffer[Point]]): Picture = {
-        val allPics = for (abPair <- lineData.sliding(2)) yield {
-            val ab1 = abPair(0)
-            val ab2 = abPair(1)
-            val pics = for {
-                p1 <- ab1
-                p2 <- ab2
-            } yield {
-                val len = math.sqrt(math.pow(p1.x - p2.x, 2) + math.pow(p1.y - p2.y, 2))
-                val angle = math.atan2(p2.y - p1.y, p2.x - p1.x)
-                Picture.hline(len)
-                    .withRotation(angle.toDegrees)
-                    .withTranslation(p1.x, p1.y)
-                    .withPenColor(black)
-                    .withPenThickness(1)
-            }
-            picStack(pics)
+        val totalLines = numHiddenUnits.reduce(_ * _)
+        if (totalLines > 5000) {
+            println(s"Not showing connections ($totalLines)")
+            Picture.circle(10).withNoPen()
         }
-        picStack(allPics.toArray)
+        else {
+
+            val allPics = for (abPair <- lineData.sliding(2)) yield {
+                val ab1 = abPair(0)
+                val ab2 = abPair(1)
+                val pics = for {
+                    p1 <- ab1
+                    p2 <- ab2
+                } yield {
+                    val len = math.sqrt(math.pow(p1.x - p2.x, 2) + math.pow(p1.y - p2.y, 2))
+                    val angle = math.atan2(p2.y - p1.y, p2.x - p1.x)
+                    Picture.hline(len)
+                        .withRotation(angle.toDegrees)
+                        .withTranslation(p1.x, p1.y)
+                        .withPenColor(black)
+                        .withPenThickness(1)
+                }
+                picStack(pics)
+            }
+            picStack(allPics.toArray)
+        }
     }
 
     def keyPic: Picture = {
