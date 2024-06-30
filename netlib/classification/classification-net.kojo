@@ -118,4 +118,109 @@ class ClassificationNet(nDims: Int*) extends AutoCloseable {
         nm.close()
         println("Done")
     }
+
+    val rad = 20
+
+    def hiddenPicture(r: Int, first: Boolean, last: Boolean) = {
+        val fillc = if (first) cm.gray else if (last) cm.blue else cm.green
+        Picture.circle(r).withFillColor(fillc).withNoPen()
+    }
+
+    def visualize() {
+        val vgap = 20
+        val hgap = 60
+        var ldx = 0
+        var ldy = 0
+
+        val lineData = ArrayBuffer.empty[ArrayBuffer[Point]]
+        var lineDataCurr = ArrayBuffer.empty[Point]
+
+        def vertPics(n: Int, first: Boolean, last: Boolean): Picture = {
+            ldy = rad - (n * 2 * rad + (n - 1) * vgap) / 2
+            val ab = ArrayBuffer.empty[Picture]
+            repeatFor(1 to n) { idx =>
+                val pic = hiddenPicture(rad, first, last)
+                ab.append(pic)
+                lineDataCurr.append(Point(ldx, ldy))
+                ldy += vgap + 2 * rad
+                if (idx != n) {
+                    ab.append(Picture.vgap(vgap))
+                }
+            }
+            picCol(ab)
+        }
+
+        val ab = ArrayBuffer.empty[Picture]
+        // add hidden pic to anchor the centered row of layer pics
+        ab.append(Picture.circle(rad).withNoPen.withTranslation(-2 * rad, 0))
+        for ((dim, cnt) <- nDims.zipWithIndex) {
+            val first = (cnt == 0)
+            val last = (cnt == nDims.length - 1)
+            val n = dim
+            lineDataCurr = ArrayBuffer.empty[Point]
+            val pics = vertPics(n, first, last)
+            ab.append(pics)
+            lineData.append(lineDataCurr)
+            if (!last) {
+                ab.append(Picture.hgap(hgap))
+            }
+            ldx += hgap + 2 * rad
+        }
+        val cb = canvasBounds
+        val netPic = picStack(
+            picRowCentered(ab),
+            linesPic(lineData),
+            keyPic.withPosition(cb.x + 20, cb.y + 20)
+        )
+        draw(netPic)
+    }
+
+    def linesPic(lineData: ArrayBuffer[ArrayBuffer[Point]]): Picture = {
+        val totalLines = nDims.reduce(_ * _)
+        if (totalLines > 5000) {
+            println(s"Not showing connections ($totalLines)")
+            Picture.circle(10).withNoPen()
+        }
+        else {
+            val allPics = for (abPair <- lineData.sliding(2)) yield {
+                val ab1 = abPair(0)
+                val ab2 = abPair(1)
+                val pics = for {
+                    p1 <- ab1
+                    p2 <- ab2
+                } yield {
+                    val len = math.sqrt(math.pow(p1.x - p2.x, 2) + math.pow(p1.y - p2.y, 2))
+                    val angle = math.atan2(p2.y - p1.y, p2.x - p1.x)
+                    Picture.hline(len)
+                        .withRotation(angle.toDegrees)
+                        .withTranslation(p1.x, p1.y)
+                        .withPenColor(black)
+                        .withPenThickness(1)
+                }
+                picStack(pics)
+            }
+            picStack(allPics.toArray)
+        }
+    }
+
+    def keyPic: Picture = {
+        val input = picRowCentered(
+            hiddenPicture(rad, true, false),
+            Picture.hgap(20),
+            Picture.text("Input")
+                .withPenColor(darkGray)
+        )
+        val hidden = picRowCentered(
+            hiddenPicture(rad, false, false),
+            Picture.hgap(20),
+            Picture.text("Hidden unit/neuron with a weight for each incoming connection, one bias, and relu activation")
+                .withPenColor(darkGray)
+        )
+        val output = picRowCentered(
+            hiddenPicture(rad, false, true),
+            Picture.hgap(20),
+            Picture.text("Output unit/neuron with a weight for each incoming connection, one bias, and softmax (layer) activation")
+                .withPenColor(darkGray))
+        picCol(output, Picture.vgap(5), hidden, Picture.vgap(5), input)
+    }
 }
