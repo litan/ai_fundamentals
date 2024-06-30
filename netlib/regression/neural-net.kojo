@@ -197,7 +197,7 @@ class NeuralNet(numHiddenUnits: Int*) extends AutoCloseable {
         val hidden = picRowCentered(
             hiddenPicture(rad, false),
             Picture.hgap(20),
-            Picture.text("Hidden unit/neuron with a weight for each incoming connection, one bias, and an activation function")
+            Picture.text("Hidden unit/neuron with a weight for each incoming connection, one bias, and relu activation")
                 .withPenColor(darkGray)
         )
         val output = picRowCentered(
