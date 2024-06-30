@@ -159,7 +159,7 @@ class NeuralNet(numHiddenUnits: Int*) extends AutoCloseable {
     }
 
     def linesPic(lineData: ArrayBuffer[ArrayBuffer[Point]]): Picture = {
-        val totalLines = numHiddenUnits.reduce(_ * _)
+        val totalLines = if (numHiddenUnits.length > 0) numHiddenUnits.reduce(_ * _) else 1
         if (totalLines > 5000) {
             println(s"Not showing connections ($totalLines)")
             Picture.circle(10).withNoPen()
