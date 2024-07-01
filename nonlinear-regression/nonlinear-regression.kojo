@@ -18,27 +18,35 @@ def f(x: Double) = (a * x * x * x * x + b * x + c) / den
 val xData0 = Array.tabulate(20)(e => (e + 1).toDouble)
 val yData0 = xData0 map (x => f(x) + random(-3, 3))
 
+val chart = scatterChart("Regression Data", "X", "Y", xData0, yData0)
+chart.getStyler.setLegendVisible(true)
+drawChart(chart)
+
 val xNormalizer = new StandardScaler()
 val yNormalizer = new StandardScaler()
 
 val xData = xNormalizer.fitTransform(xData0)
 val yData = yNormalizer.fitTransform(yData0)
 
-val chart = scatterChart("Regression Data", "X", "Y", xData0, yData0)
-chart.getStyler.setLegendVisible(true)
-drawChart(chart)
-
-val xDataf = xData.map(_.toFloat)
-val yDataf = yData.map(_.toFloat)
+val nepochs = 500
 
 ndScoped { use =>
     val model = use(new NonlinearModel)
-    model.train(xDataf, yDataf)
-    val yPreds = model.predict(xDataf)
-    val yPreds0 = yNormalizer.inverseTransform(yPreds.map(_.toDouble))
-    addLineToChart(chart, Some("model"), xData0, yPreds0)
+    model.train(xData, yData)
+    updateGraph(model, nepochs)
+}
+
+def updateGraph(model: NonlinearModel, n: Int) {
+    // take a look at model predictions at the training points
+    // and also between the training points
+    val xs = xData.flatMap(x => Array(x, x + 0.1))
+    val yPreds = model.predict(xs)
+    val yPreds0 = yNormalizer.inverseTransform(yPreds)
+    val xs0 = xNormalizer.inverseTransform(xs)
+    addLineToChart(chart, Some(s"epoch-$n"), xs0, yPreds0)
     updateChart(chart)
 }
+
 
 class NonlinearModel extends AutoCloseable {
     val LEARNING_RATE: Float = 0.1f
@@ -64,10 +72,12 @@ class NonlinearModel extends AutoCloseable {
         l1a.matMul(w2).add(b2)
     }
 
-    def train(xValues: Array[Float], yValues: Array[Float]): Unit = {
+    def train(xValuesD: Array[Double], yValuesD: Array[Double]): Unit = {
+        val xValues = xValuesD.map(_.toFloat)
+        val yValues = yValuesD.map(_.toFloat)
         val x = nm.create(xValues).reshape(Shape(-1, 1))
         val y = nm.create(yValues).reshape(Shape(-1, 1))
-        for (epoch <- 1 to 500) {
+        for (epoch <- 1 to nepochs) {
             ndScoped { use =>
                 val gc = use(gradientCollector)
                 val yPred = modelFunction(x)
@@ -89,11 +99,12 @@ class NonlinearModel extends AutoCloseable {
         println("Training Done")
     }
 
-    def predict(xValues: Array[Float]): Array[Float] = {
+    def predict(xValuesD: Array[Double]): Array[Double] = {
+        val xValues = xValuesD.map(_.toFloat)
         ndScoped { _ =>
             val x = nm.create(xValues).reshape(Shape(-1, 1))
             val y = modelFunction(x)
-            y.toFloatArray
+            y.toFloatArray.map(_.toDouble)
         }
     }
 

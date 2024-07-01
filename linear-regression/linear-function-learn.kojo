@@ -20,23 +20,20 @@ val chart = scatterChart("Regression Data", "X", "Y", xData, yData)
 chart.getStyler.setLegendVisible(true)
 drawChart(chart)
 
-val xDataf = xData.map(_.toFloat)
-val yDataf = yData.map(_.toFloat)
-
 val nepochs = 500
 
 ndScoped { use =>
     val model = use(new Model)
-    model.train(xDataf, yDataf)
+    model.train(xData, yData)
     updateGraph(model, nepochs)
 }
 
 def updateGraph(model: Model, n: Int) {
     // take a look at model predictions at the training points
     // and also between the training points
-    val xs = xDataf.flatMap(x => Array(x, x + 0.5f))
+    val xs = xData.flatMap(x => Array(x, x + 0.5))
     val yPreds = model.predict(xs)
-    addLineToChart(chart, Some(s"epoch-$n"), xs.map(_.toDouble), yPreds.map(_.toDouble))
+    addLineToChart(chart, Some(s"epoch-$n"), xs, yPreds)
     updateChart(chart)
 }
 
@@ -57,7 +54,10 @@ class Model extends AutoCloseable {
         x.matMul(w).add(b)
     }
 
-    def train(xValues: Array[Float], yValues: Array[Float]): Unit = {
+    def train(xValuesD: Array[Double], yValuesD: Array[Double]): Unit = {
+        val xValues = xValuesD.map(_.toFloat)
+        val yValues = yValuesD.map(_.toFloat)
+
         ndScoped { _ =>
             val x = nm.create(xValues).reshape(Shape(-1, 1))
             val y = nm.create(yValues).reshape(Shape(-1, 1))
@@ -81,11 +81,12 @@ class Model extends AutoCloseable {
         println(b)
     }
 
-    def predict(xValues: Array[Float]): Array[Float] = {
+    def predict(xValuesD: Array[Double]): Array[Double] = {
+        val xValues = xValuesD.map(_.toFloat)
         ndScoped { _ =>
             val x = nm.create(xValues).reshape(Shape(-1, 1))
             val y = modelFunction(x)
-            y.toFloatArray
+            y.toFloatArray.map(_.toDouble)
         }
     }
 

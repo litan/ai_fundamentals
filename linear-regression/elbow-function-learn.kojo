@@ -27,31 +27,28 @@ val yData3 = xData3.map(x => m3 * x + c3 + randomDouble(-1, 1))
 val xData0 = xData1 ++ xData2 ++ xData3
 val yData0 = yData1 ++ yData2 ++ yData3
 
+val chart = scatterChart("Regression Data", "X", "Y", xData0, yData0)
+chart.getStyler.setLegendVisible(true)
+drawChart(chart)
+
 val xNormalizer = new StandardScaler()
 val yNormalizer = new StandardScaler()
 
 val xData = xNormalizer.fitTransform(xData0)
 val yData = yNormalizer.fitTransform(yData0)
 
-val chart = scatterChart("Regression Data", "X", "Y", xData0, yData0)
-chart.getStyler.setLegendVisible(true)
-drawChart(chart)
-
-val xDataf = xData.map(_.toFloat)
-val yDataf = yData.map(_.toFloat)
-
 ndScoped { use =>
     val model = use(new NonlinearModel)
-    model.train(xDataf, yDataf)
+    model.train(xData, yData)
 }
 
 def updateGraph(model: NonlinearModel, n: Int) {
     // take a look at model predictions at the training points
     // and also between the training points
-    val xs = xDataf.flatMap(x => Array(x, x + 0.1f))
+    val xs = xData.flatMap(x => Array(x, x + 0.1))
     val yPreds = model.predict(xs)
-    val yPreds0 = yNormalizer.inverseTransform(yPreds.map(_.toDouble))
-    val xs0 = xNormalizer.inverseTransform(xs.map(_.toDouble))
+    val yPreds0 = yNormalizer.inverseTransform(yPreds)
+    val xs0 = xNormalizer.inverseTransform(xs)
     addLineToChart(chart, Some(s"epoch-$n"), xs0, yPreds0)
     updateChart(chart)
 }
@@ -80,7 +77,9 @@ class NonlinearModel extends AutoCloseable {
         l1a.matMul(w2).add(b2)
     }
 
-    def train(xValues: Array[Float], yValues: Array[Float]): Unit = {
+    def train(xValuesD: Array[Double], yValuesD: Array[Double]): Unit = {
+        val xValues = xValuesD.map(_.toFloat)
+        val yValues = yValuesD.map(_.toFloat)
         ndScoped { _ =>
             val x = nm.create(xValues).reshape(Shape(-1, 1))
             val y = nm.create(yValues).reshape(Shape(-1, 1))
@@ -109,11 +108,12 @@ class NonlinearModel extends AutoCloseable {
         println("Training Done")
     }
 
-    def predict(xValues: Array[Float]): Array[Float] = {
+    def predict(xValuesD: Array[Double]): Array[Double] = {
+        val xValues = xValuesD.map(_.toFloat)
         ndScoped { _ =>
             val x = nm.create(xValues).reshape(Shape(-1, 1))
             val y = modelFunction(x)
-            y.toFloatArray
+            y.toFloatArray.map(_.toDouble)
         }
     }
 
