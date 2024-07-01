@@ -127,6 +127,11 @@ class ClassificationNet(nDims: Int*) extends AutoCloseable {
     }
 
     def visualize() {
+        val pic = netPic
+        draw(pic)
+    }
+
+    def netPic: Picture = {
         val vgap = 20
         val hgap = 60
         var ldx = 0
@@ -167,12 +172,11 @@ class ClassificationNet(nDims: Int*) extends AutoCloseable {
             ldx += hgap + 2 * rad
         }
         val cb = canvasBounds
-        val netPic = picStack(
-            picRowCentered(ab),
+        picStack(
             linesPic(lineData),
+            picRowCentered(ab),
             keyPic.withPosition(cb.x + 20, cb.y + 20)
         )
-        draw(netPic)
     }
 
     def linesPic(lineData: ArrayBuffer[ArrayBuffer[Point]]): Picture = {

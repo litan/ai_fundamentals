@@ -106,6 +106,11 @@ class NeuralNet(numHiddenUnits: Int*) extends AutoCloseable {
     }
 
     def visualize() {
+        val pic = netPic
+        draw(pic)
+    }
+
+    def netPic: Picture = {
         val vgap = 20
         val hgap = 60
         var ldx = 0
@@ -150,12 +155,11 @@ class NeuralNet(numHiddenUnits: Int*) extends AutoCloseable {
             }
         }
         val cb = canvasBounds
-        val netPic = picStack(
+        picStack(
             linesPic(lineData),
             picRowCentered(ab),
             keyPic.withPosition(cb.x + 20, cb.y + 20)
         )
-        draw(netPic)
     }
 
     def linesPic(lineData: ArrayBuffer[ArrayBuffer[Point]]): Picture = {
