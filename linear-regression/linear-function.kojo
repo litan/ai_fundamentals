@@ -1,4 +1,5 @@
 // #include /plot.kojo
+// #include util.kojo
 
 cleari()
 clearOutput()
@@ -8,9 +9,14 @@ val c = 1
 
 def f(x: Double) = m * x + c
 
-val xData = Array.tabulate(11)(n => n.toDouble)
-val yData = xData.map(x => f(x) + randomDouble(-3, 3))
+repeatFor(0 to 10) { x =>
+    val y = f(x)
+    println(s"x=$x, f(x)=$y")
+}
 
-val chart = scatterChart("Regression Data", "X", "Y", xData, yData)
+val xData = range(0, 11)
+val yData = xData.map(x => f(x))
+
+val chart = scatterChart("Linear Function", "X", "Y", xData, yData)
 chart.getStyler.setLegendVisible(true)
 drawChart(chart)

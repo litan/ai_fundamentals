@@ -1,5 +1,6 @@
 // #include /nn.kojo
 // #include /plot.kojo
+// #include util.kojo
 
 cleari()
 clearOutput()
@@ -15,7 +16,7 @@ val den = 5000
 
 def f(x: Double) = (a * x * x * x * x + b * x + c) / den
 
-val xData0 = Array.tabulate(20)(e => (e + 1).toDouble)
+val xData0 = range(1, 21)
 val yData0 = xData0 map (x => f(x) + random(-3, 3))
 
 val chart = scatterChart("Regression Data", "X", "Y", xData0, yData0)

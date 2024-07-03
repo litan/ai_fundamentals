@@ -1,5 +1,6 @@
 // #include /plot.kojo
 // #include /nn.kojo
+// #include util.kojo
 
 cleari()
 clearOutput()
@@ -13,7 +14,7 @@ val c = 1
 
 def f(x: Double) = m * x + c
 
-val xData = Array.tabulate(11)(n => n.toDouble)
+val xData = range(0, 11)
 val yData = xData.map(x => f(x) + randomDouble(-3, 3))
 
 val chart = scatterChart("Regression Data", "X", "Y", xData, yData)
