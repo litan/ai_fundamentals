@@ -16,7 +16,7 @@ val c2 = -60
 val m3 = -1
 val c3 = 30
 
-val xData1 = range(0, 7)
+val xData1 = range(1, 7)
 val yData1 = xData1.map(x => m1 * x + c1 + randomDouble(-1, 1))
 
 val xData2 = range(7, 13)
@@ -32,10 +32,10 @@ val chart = scatterChart("Regression Data", "X", "Y", xData, yData)
 chart.getStyler.setLegendVisible(true)
 drawChart(chart)
 
-val nepochs = 25000
+val nepochs = 30000
 val lr = 0.003f
 
-val model = new NeuralNet(6)
+val model = new NeuralNet(4)
 model.train(xData, yData, nepochs / 2, lr)
 updateGraph(model, nepochs / 2)
 model.train(xData, yData, nepochs / 2, lr)
