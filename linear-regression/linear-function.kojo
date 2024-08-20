@@ -1,5 +1,4 @@
 // #include /plot.kojo
-// #include util.kojo
 
 cleari()
 clearOutput()
@@ -14,7 +13,7 @@ repeatFor(0 to 10) { x =>
     println(s"x=$x, f(x)=$y")
 }
 
-val xData = range(0, 11)
+val xData = arrayOfDoubles(0, 11)
 val yData = xData.map(x => f(x))
 
 val chart = scatterChart("Linear Function", "X", "Y", xData, yData)

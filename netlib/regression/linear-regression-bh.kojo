@@ -1,4 +1,4 @@
-// #include /plot.kojo
+// #include /dataframe.kojo
 // #include /nn.kojo
 // #include neural-net.kojo
 
@@ -9,13 +9,13 @@ val seed = 42
 initRandomGenerator(seed)
 Engine.getInstance.setRandomSeed(seed)
 
-val m = 3
-val c = 1
+val df = readCsv(resolvedPath("../../charting/boston-housing.csv"))
 
-def f(x: Double) = m * x + c
+val rooms = df.doubleColumn("RM")
+val price = df.doubleColumn("MEDV")
 
-val xData = arrayOfDoubles(0, 11)
-val yData = xData.map(x => f(x) + randomDouble(-3, 3))
+val xData = rooms.asDoubleSeq
+val yData = price.asDoubleSeq
 
 val chart = scatterChart("Regression Data", "X", "Y", xData, yData)
 chart.getStyler.setLegendVisible(true)

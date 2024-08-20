@@ -1,9 +1,5 @@
 // #include /nn.kojo
 
-def range(start: Int, end: Int, step: Double = 1.0): Array[Double] = {
-    rangeTill(start, end, step).map(_.toDouble).toArray
-}
-
 class NeuralNet(numHiddenUnits: Int*) extends AutoCloseable {
     val xNormalizer = new StandardScaler()
     val yNormalizer = new StandardScaler()

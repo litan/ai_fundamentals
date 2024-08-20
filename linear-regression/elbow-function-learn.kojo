@@ -1,6 +1,5 @@
 // #include /nn.kojo
 // #include /plot.kojo
-// #include util.kojo
 
 val seed = 42
 initRandomGenerator(seed)
@@ -16,13 +15,13 @@ val c2 = -60
 val m3 = -1
 val c3 = 30
 
-val xData1 = range(1, 7)
+val xData1 = arrayOfDoubles(1, 7)
 val yData1 = xData1.map(x => m1 * x + c1 + randomDouble(-1, 1))
 
-val xData2 = range(7, 13)
+val xData2 = arrayOfDoubles(7, 13)
 val yData2 = xData2.map(x => m2 * x + c2 + randomDouble(-1, 1))
 
-val xData3 = range(13, 19)
+val xData3 = arrayOfDoubles(13, 19)
 val yData3 = xData3.map(x => m3 * x + c3 + randomDouble(-1, 1))
 
 val xData0 = xData1 ++ xData2 ++ xData3
