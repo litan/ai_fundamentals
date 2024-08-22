@@ -69,7 +69,7 @@ class Model extends AutoCloseable {
                     gc.backward(loss)
                     gc.close()
 
-                    params.foreach { p =>
+                    for (p <- params) {
                         p.subi(p.getGradient.mul(LEARNING_RATE))
                         p.zeroGradients()
                     }

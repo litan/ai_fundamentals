@@ -89,7 +89,7 @@ class NonlinearModel extends AutoCloseable {
             }
 
             ndScoped { _ =>
-                params.foreach { p =>
+                for (p <- params) {
                     p.subi(p.getGradient.mul(LEARNING_RATE))
                     p.zeroGradients()
                 }

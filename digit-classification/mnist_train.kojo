@@ -62,10 +62,6 @@ class MnistModel extends AutoCloseable {
         p.setRequiresGradient(true)
     }
 
-    params.foreach { p =>
-        println(p.size)
-    }
-
     def modelFunction(x: NDArray): NDArray = {
         val l1 = x.matMul(w1).add(b1)
         val l1a = Activation.relu(l1)
@@ -97,7 +93,7 @@ class MnistModel extends AutoCloseable {
                     gc.backward(loss)
                     gc.close()
 
-                    params.foreach { p =>
+                    for (p <- params) {
                         p.subi(p.getGradient.mul(learningRate(epoch)))
                         p.zeroGradients()
                     }
