@@ -34,6 +34,28 @@ def sum(n1: Int, n2: Int): Int = {
 val ans = sum(2, 3)
 println(ans)
 
+// fixed size sequence
+Array(1, 2, 3)
+
+// sequence that can grow in size
+val ab = ArrayBuffer.empty[Int]
+ab.append(1); ab.append(2); ab.append(3)
+
+// iterate through a sequence
+for (n <- ab) {
+    // do whatever with current element n
+    println(n)
+}
+// or
+ab.foreach { n =>
+    println(n)
+}
+
+// convert one sequence into another
+for (n <- ab) yield (n * 2)
+// or
+ab.map(n => n * 2)
+
 // creating a new type for storing useful information
 case class Point(x: Double, y: Double) {
     def distanceTo(other: Point): Double = {
@@ -64,18 +86,3 @@ def gameLoop() {
     }
 }
 
-// fixed size sequence
-Array(1, 2, 3)
-
-// sequence that can grow in size
-val ab = ArrayBuffer.empty[Int]
-ab.append(1); ab.append(2); ab.append(3)
-
-// iterate through a sequence
-for (n <- ab) {
-    // do whatever with current element n
-    println(n)
-}
-
-// convert one sequence into another
-for (n <- ab) yield (n * 2)
