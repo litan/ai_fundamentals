@@ -93,6 +93,62 @@ class NeuralNet(numHiddenUnits: Int*) extends AutoCloseable {
         println("Done")
     }
 
+    def save(fname: String) {
+        import java.io._
+        val modelFile = s"${kojoCtx.baseDir}/$fname"
+        println(s"Saving model in file - $modelFile")
+        managed { use =>
+            val dos = use(new DataOutputStream(
+                new BufferedOutputStream(new FileOutputStream(modelFile))
+            ))
+            dos.writeChar('S')
+            dos.writeDouble(xNormalizer.mean)
+            dos.writeDouble(xNormalizer.std)
+            dos.writeDouble(yNormalizer.mean)
+            dos.writeDouble(yNormalizer.std)
+
+            dos.writeChar('P')
+            params.foreach { p =>
+                dos.write(p.encode())
+            }
+        }
+    }
+
+    def load(fname: String) {
+        import java.io._
+        val modelFile = s"${kojoCtx.baseDir}/$fname"
+        println(s"Loading model from file - $modelFile")
+        managed { use =>
+            val dis = use(new DataInputStream(
+                new BufferedInputStream(new FileInputStream(modelFile))
+            ))
+            val header2 = dis.readChar()
+            assert(header2 == 'S', "Not a valid model file - unknown scalar header")
+
+            xNormalizer.mean = dis.readDouble
+            xNormalizer.std = dis.readDouble
+            yNormalizer.mean = dis.readDouble
+            yNormalizer.std = dis.readDouble
+
+            val header = dis.readChar()
+            assert(header == 'P', "Not a valid model file - unknown param header")
+            params.clear()
+            try {
+                while (true) {
+                    val p = nm.decode(dis)
+                    params.append(p)
+                }
+            }
+            catch {
+                case e: java.io.IOException => // done
+            }
+
+            params.foreach { p =>
+                p.setRequiresGradient(true)
+            }
+        }
+    }
+
     val rad = 20
 
     def inputPicture(r: Int) = Picture.circle(r).withFillColor(cm.gray).withNoPen()
