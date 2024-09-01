@@ -8,12 +8,12 @@ import net.kogics.kojo.util.Utils
 class MnistModel(modelFile: String) {
     val nd = NDManager.newBaseManager()
 
-    val params = load(6)
+    val params = load()
     val w1 = params(0); val b1 = params(1)
     val w2 = params(2); val b2 = params(3)
     val w3 = params(4); val b3 = params(5)
 
-    def load(n: Int): Array[NDArray] = {
+    def load(): Array[NDArray] = {
         import java.io._
         println(s"Loading model from file - $modelFile")
         managed { use =>
@@ -23,9 +23,14 @@ class MnistModel(modelFile: String) {
             val header = dis.readChar()
             assert(header == 'P', "Not a valid model file - unknown param header")
             val params = ArrayBuffer.empty[NDArray]
-            for (i <- 1 to n) {
-                val p = nd.decode(dis)
-                params.append(p)
+            try {
+                while (true) {
+                    val p = nd.decode(dis)
+                    params.append(p)
+                }
+            }
+            catch {
+                case e: java.io.IOException => // done
             }
             params.toArray
         }

@@ -109,7 +109,6 @@ class ClassificationNet(nDims: Int*) extends AutoCloseable {
                 dos.write(p.encode())
             }
         }
-
     }
 
     def close() {
