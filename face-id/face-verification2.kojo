@@ -20,23 +20,24 @@ val scriptDir = Utils.kojoCtx.baseDir
 val faceDetector = new FaceDetector(s"$scriptDir/face_detection_model/")
 val faceEmbedder = new FaceEmbedder(s"$scriptDir/face_feature_model")
 
-var videoFramePic: Picture = _
+var currFramePic: Picture = _
 var currImageMat: Mat = _
 var currFaceRects: Seq[Rect] = _
 
 runInBackground {
-    val feed = new WebCamFeed()
+    // feed from device 0 (default monitor) at 10 fps
+    val feed = new WebCamFeed(0, 10)
     feed.startCapture { imageMat =>
         val faces = faceDetector.locateAndMarkFaces(imageMat)
-        val vfPic2 = Picture.image(Java2DFrameUtils.toBufferedImage(imageMat))
-        centerPic(vfPic2, imageMat.size(1), imageMat.size(0))
-        vfPic2.draw()
+        val nextFramePic = Picture.image(matToBufferedImage(imageMat))
+        centerPic(nextFramePic, imageMat.size(1), imageMat.size(0))
+        nextFramePic.draw()
         currImageMat = imageMat
         currFaceRects = faces
-        if (videoFramePic != null) {
-            videoFramePic.erase()
+        if (currFramePic != null) {
+            currFramePic.erase()
         }
-        videoFramePic = vfPic2
+        currFramePic = nextFramePic
     }
     println("feed done")
     scriptDone()

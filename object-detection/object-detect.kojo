@@ -18,24 +18,24 @@ def centerPic(pic: Picture, w: Int, h: Int) {
 val scriptDir = Utils.kojoCtx.baseDir
 val objectDetector = new ObjectDetector(s"$scriptDir/model/")
 
-var videoFramePic: Picture = _
+var currFramePic: Picture = _
 var currImageMat: Mat = _
 var currObjects: DetectedObjects = _
 
 runInBackground {
-    // feed from device 0 (default monitor) at 10 fps
+    // feed from device 0 (default monitor) at 5 fps
     val feed = new WebCamFeed(0, 5)
     feed.startCapture { imageMat =>
         val (detections, markedImage) = objectDetector.findObjects(imageMat)
-        val vfPic2 = Picture.image(markedImage)
-        centerPic(vfPic2, imageMat.size(1), imageMat.size(0))
-        vfPic2.draw()
+        val nextFramePic = Picture.image(markedImage)
+        centerPic(nextFramePic, imageMat.size(1), imageMat.size(0))
+        nextFramePic.draw()
         currImageMat = imageMat
         currObjects = detections
-        if (videoFramePic != null) {
-            videoFramePic.erase()
+        if (currFramePic != null) {
+            currFramePic.erase()
         }
-        videoFramePic = vfPic2
+        currFramePic = nextFramePic
     }
     println("feed done")
     scriptDone()
