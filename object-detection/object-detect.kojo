@@ -16,7 +16,7 @@ def centerPic(pic: Picture, w: Int, h: Int) {
 }
 
 val scriptDir = Utils.kojoCtx.baseDir
-val objectDetector = new ObjectDetector(s"$scriptDir/model/")
+val objectDetector = new ObjectDetector(s"$scriptDir/yolov8n/")
 
 var currFramePic: Picture = _
 var currImageMat: Mat = _
