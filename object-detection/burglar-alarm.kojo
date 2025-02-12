@@ -1,6 +1,3 @@
-// scroll down to the bottom of the file
-// for code to play with
-
 // #include /webcam.kojo
 // #include /object-detection.kojo
 

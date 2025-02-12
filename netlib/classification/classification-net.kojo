@@ -10,8 +10,8 @@ trait TrainingListener {
 }
 
 class ClassificationNet(nDims: Int*) extends AutoCloseable {
-    require(nDims.length >= 3, "ClassificationNet problem – you need at least one input, one hidden, and one output layer")
-    require(nDims.last > 1, "ClassificationNet problem – you need at least two output classes")
+    //    require(nDims.length >= 3, "ClassificationNet problem – you need at least one input, one hidden, and one output layer")
+    //    require(nDims.last > 1, "ClassificationNet problem – you need at least two output classes")
     val nm = NDManager.newBaseManager()
 
     val nDimsList = nDims.toList
@@ -118,16 +118,37 @@ class ClassificationNet(nDims: Int*) extends AutoCloseable {
         println("Done")
     }
 
-    val rad = 20
+    val rad = 50
 
-    def hiddenPicture(r: Int, first: Boolean, last: Boolean) = {
-        val fillc = if (first) cm.gray else if (last) cm.blue else cm.green
-        Picture.circle(r).withFillColor(fillc).withNoPen()
+    def neuronPicture(r: Int, first: Boolean, last: Boolean) = {
+        val fillc =
+            if (first) ColorMaker.hsl(0, 0.00, 0.25)
+            else if (last) ColorMaker.hsl(220, 1.00, 0.40) else cm.green
+        val neuron = Picture.circle(r).withFillColor(fillc).withNoPen()
+        val font = Font("Source Code Pro", 18, BoldFont)
+        val neuronStuff =
+            if (first) {
+                Picture.text("Input", font)
+            }
+            else {
+                val txt = if (last) {
+                    if (nDims.last == 1) "Sigmoid" else "Softmax"
+                }
+                else "Relu"
+                picColCentered(
+                    Picture.text(txt, font),
+                    Picture.vgap(5),
+                    Picture.hline(rad),
+                    Picture.vgap(5),
+                    Picture.text("W | b", font),
+                )
+            }
+        picStackCentered(neuron, neuronStuff.withPenColor(white))
     }
 
     def visualize() {
         val pic = netPic
-        draw(pic)
+        drawCentered(pic)
     }
 
     def netPic: Picture = {
@@ -143,7 +164,7 @@ class ClassificationNet(nDims: Int*) extends AutoCloseable {
             ldy = rad - (n * 2 * rad + (n - 1) * vgap) / 2
             val ab = ArrayBuffer.empty[Picture]
             repeatFor(1 to n) { idx =>
-                val pic = hiddenPicture(rad, first, last)
+                val pic = neuronPicture(rad, first, last)
                 ab.append(pic)
                 lineDataCurr.append(Point(ldx, ldy))
                 ldy += vgap + 2 * rad
@@ -174,7 +195,6 @@ class ClassificationNet(nDims: Int*) extends AutoCloseable {
         picStack(
             linesPic(lineData),
             picRowCentered(ab),
-            keyPic.withPosition(cb.x + 20, cb.y + 20)
         )
     }
 
@@ -204,26 +224,5 @@ class ClassificationNet(nDims: Int*) extends AutoCloseable {
             }
             picStack(allPics.toArray)
         }
-    }
-
-    def keyPic: Picture = {
-        val input = picRowCentered(
-            hiddenPicture(rad, true, false),
-            Picture.hgap(20),
-            Picture.text("Input")
-                .withPenColor(darkGray)
-        )
-        val hidden = picRowCentered(
-            hiddenPicture(rad, false, false),
-            Picture.hgap(20),
-            Picture.text("Hidden unit/neuron with a weight for each incoming connection, one bias, and relu activation")
-                .withPenColor(darkGray)
-        )
-        val output = picRowCentered(
-            hiddenPicture(rad, false, true),
-            Picture.hgap(20),
-            Picture.text("Output unit/neuron with a weight for each incoming connection, one bias, and softmax (layer) activation")
-                .withPenColor(darkGray))
-        picCol(output, Picture.vgap(5), hidden, Picture.vgap(5), input)
     }
 }

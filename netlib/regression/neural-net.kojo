@@ -149,17 +149,38 @@ class NeuralNet(numHiddenUnits: Int*) extends AutoCloseable {
         }
     }
 
-    val rad = 20
+    val rad = 50
 
-    def inputPicture(r: Int) = Picture.circle(r).withFillColor(cm.gray).withNoPen()
-    def hiddenPicture(r: Int, last: Boolean) = {
-        val fillc = if (last) cm.blue else cm.green
-        Picture.circle(r).withFillColor(fillc).withNoPen()
+    def neuronPicture(r: Int, first: Boolean, last: Boolean) = {
+        val fillc =
+            if (first) ColorMaker.hsl(0, 0.00, 0.25)
+            else if (last) ColorMaker.hsl(220, 1.00, 0.40) else cm.green
+        val neuron = Picture.circle(r).withFillColor(fillc).withNoPen()
+        val font = Font("Source Code Pro", 18, BoldFont)
+        val neuronStuff =
+            if (first) {
+                Picture.text("Input", font)
+            }
+            else {
+                val txt = if (last) {
+                    "Id"
+                }
+                else "Relu"
+                picColCentered(
+                    Picture.text(txt, font),
+                    Picture.vgap(5),
+                    Picture.hline(rad),
+                    Picture.vgap(5),
+                    Picture.text("W | b", font),
+                )
+            }
+        picStackCentered(neuron, neuronStuff.withPenColor(white))
     }
+    
 
     def visualize() {
         val pic = netPic
-        draw(pic)
+        drawCentered(pic)
     }
 
     def netPic: Picture = {
@@ -175,7 +196,7 @@ class NeuralNet(numHiddenUnits: Int*) extends AutoCloseable {
             ldy = rad - (n * 2 * rad + (n - 1) * vgap) / 2
             val ab = ArrayBuffer.empty[Picture]
             repeatFor(1 to n) { idx =>
-                val pic = hiddenPicture(rad, last)
+                val pic = neuronPicture(rad, false, last)
                 ab.append(pic)
                 lineDataCurr.append(Point(ldx, ldy))
                 ldy += vgap + 2 * rad
@@ -187,7 +208,7 @@ class NeuralNet(numHiddenUnits: Int*) extends AutoCloseable {
         }
 
         val ab = ArrayBuffer.empty[Picture]
-        val inputPic = inputPicture(rad)
+        val inputPic = neuronPicture(rad, true, false)
         ab.append(inputPic)
         ab.append(Picture.hgap(hgap))
         lineDataCurr.append(Point(ldx, ldy))
@@ -210,7 +231,6 @@ class NeuralNet(numHiddenUnits: Int*) extends AutoCloseable {
         picStack(
             linesPic(lineData),
             picRowCentered(ab),
-            keyPic.withPosition(cb.x + 20, cb.y + 20)
         )
     }
 
@@ -241,26 +261,5 @@ class NeuralNet(numHiddenUnits: Int*) extends AutoCloseable {
             }
             picStack(allPics.toArray)
         }
-    }
-
-    def keyPic: Picture = {
-        val input = picRowCentered(
-            inputPicture(rad),
-            Picture.hgap(20),
-            Picture.text("Input")
-                .withPenColor(darkGray)
-        )
-        val hidden = picRowCentered(
-            hiddenPicture(rad, false),
-            Picture.hgap(20),
-            Picture.text("Hidden unit/neuron with a weight for each incoming connection, one bias, and relu activation")
-                .withPenColor(darkGray)
-        )
-        val output = picRowCentered(
-            hiddenPicture(rad, true),
-            Picture.hgap(20),
-            Picture.text("Output unit/neuron with a weight for each incoming connection, and one bias")
-                .withPenColor(darkGray))
-        picCol(output, Picture.vgap(5), hidden, Picture.vgap(5), input)
     }
 }
