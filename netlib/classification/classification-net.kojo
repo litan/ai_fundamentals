@@ -57,7 +57,7 @@ class ClassificationNet(nDims: Int*) extends AutoCloseable {
                 ndScoped { use =>
                     val batch = use(batch0)
                     val gc = gradientCollector
-                    val x = batch.getData.head.reshape(Shape(-1, 784))
+                    val x = batch.getData.head.reshape(Shape(-1, inputDim))
                     val y = batch.getLabels.head
                     val yPred = use(modelFunction(x))
                     val loss = use(softmax.evaluate(new NDList(y), new NDList(yPred)))
@@ -84,7 +84,7 @@ class ClassificationNet(nDims: Int*) extends AutoCloseable {
         valSet.getData(nm).asScala.foreach { batch0 =>
             ndScoped { use =>
                 val batch = use(batch0)
-                val x = batch.getData.head.reshape(Shape(-1, 784))
+                val x = batch.getData.head.reshape(Shape(-1, inputDim))
                 val y = batch.getLabels.head
                 val yPred = use(modelFunction(x).softmax(1).argMax(1))
                 val matches = use(y.toType(DataType.INT64, false).eq(yPred))
