@@ -19,7 +19,8 @@ var currFramePic: Picture = _
 val label = "classlabel"
 var ctr = 1
 
-val fl = new File(s"${kojoCtx.baseDir}/datax/$label/")
+val dataDir = "data"
+val fl = new File(s"${kojoCtx.baseDir}/$dataDir/$label/")
 fl.mkdirs()
 println(s"Data directory is: $fl")
 
@@ -48,7 +49,7 @@ runInBackground {
 
 def saveImage(img: java.awt.image.BufferedImage) {
     if (started) {
-        val file = new File(s"${kojoCtx.baseDir}/datax/$label/$ctr.jpg")
+        val file = new File(s"${kojoCtx.baseDir}/$dataDir/$label/$ctr.jpg")
         ImageIO.write(img, "jpg", file)
         println(ctr)
         ctr += 1

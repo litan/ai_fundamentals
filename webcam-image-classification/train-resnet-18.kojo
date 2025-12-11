@@ -39,7 +39,7 @@ net.kogics.kojo.nn.resetGradientCollection()
 // For ResNet-18 embedding (pretrained on ImageNet)
 val imageSize = 224
 val batchSize = 16
-val numEpochs = 3 // bump up/down depending on speed
+val numEpochs = 2 // bump up/down depending on speed
 val learningRate = 3e-3f
 
 // Keep a strong reference to the embedding ZooModel so its native
@@ -209,7 +209,17 @@ def trainModel(
     }
 }
 
+def showStatus(msg: String) {
+    erasePictures()
+    drawCentered(
+        Picture.text(msg, 40, black)
+    )
+}
+
+cleari()
 clearOutput()
+showStatus("Model training in progress...")
 val dataRoot = s"${kojoCtx.baseDir}/data"
 val modelDir = s"${kojoCtx.baseDir}/model"
 trainModel(dataRoot, modelDir)
+showStatus("Model training done.")
