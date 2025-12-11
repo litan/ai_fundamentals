@@ -43,13 +43,14 @@ runInBackground {
     scriptDone()
 }
 
+val font = Font("Serif", 21)
 def showPredictions(classNames: Seq[String], probs: Seq[java.lang.Double]) {
     val pics = ArrayBuffer.empty[Picture]
     classNames.zip(probs).foreach { case (cls, prob) =>
         val pic = picRowCentered(
             picStackCentered(
                 Picture.rectangle(100, 20).withNoPen(),
-                Picture.text(cls).withPenColor(black),
+                Picture.text(cls, font, black),
             ),
             Picture.hgap(10),
             picStack(
